@@ -1,0 +1,714 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>قاعة بحث — حل شامل للعناوين والفروض</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2C2C2B; --ink-soft:#7D7A75; --canvas:#FFFFFF; --soft:#F9F8F7;
+    --soft2:#F0EFED; --border:#E6E5E3;
+    --blue:#2783DE; --blue-soft:#E5F2FC;
+    --green:#46A171; --green-soft:#E8F1EC;
+    --orange:#D5803B; --orange-soft:#FBEBDE;
+    --red:#E56458; --red-soft:#FCE9E7;
+    --purple:#8A63C9; --purple-soft:#F0EAF9;
+    --radius:14px; --maxw:1000px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--soft); color:var(--ink);
+    font-family:"Tajawal",system-ui,Arial,sans-serif;
+    font-size:17px; line-height:1.7;
+  }
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:32px 24px 80px}
+  h1,h2,h3,h4{font-family:"Cairo","Tajawal",sans-serif; line-height:1.3; margin:0}
+  .num{font-family:"Fraunces","Cairo",serif}
+
+  /* Hero */
+  .hero{background:var(--canvas); border:1px solid var(--border); border-radius:20px; padding:40px 36px; text-align:center; margin-bottom:28px}
+  .hero .kicker{color:var(--blue); font-weight:700; letter-spacing:.02em; font-size:15px; margin-bottom:10px}
+  .hero h1{font-size:38px; font-weight:900; margin-bottom:12px}
+  .hero p{color:var(--ink-soft); max-width:640px; margin:0 auto; font-size:17px}
+  .hero .by{margin-top:16px; font-size:14px; color:var(--ink-soft)}
+
+  /* Nav */
+  nav.toc{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-bottom:36px}
+  nav.toc a{background:var(--canvas); border:1px solid var(--border); color:var(--ink); text-decoration:none; padding:8px 14px; border-radius:999px; font-size:14px; font-weight:500; min-height:44px; display:inline-flex; align-items:center}
+  nav.toc a:hover{border-color:var(--blue); color:var(--blue)}
+
+  section{margin-bottom:48px}
+  .sec-head{display:flex; align-items:center; gap:12px; margin-bottom:20px}
+  .sec-head .dot{width:12px; height:12px; border-radius:50%}
+  .sec-head h2{font-size:26px; font-weight:800}
+  .sec-sub{color:var(--ink-soft); margin:-8px 0 22px; font-size:16px}
+
+  .card{background:var(--canvas); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:16px}
+  .card.tight{padding:18px 20px}
+
+  /* Golden rule big cards */
+  .rules{display:grid; grid-template-columns:1fr 1fr; gap:18px}
+  @media(max-width:760px){.rules{grid-template-columns:1fr}}
+  .rule{border-radius:18px; padding:26px; border:1px solid var(--border)}
+  .rule.corr{background:var(--green-soft); border-color:#cfe6da}
+  .rule.exp{background:var(--orange-soft); border-color:#f0d9c2}
+  .rule .tag{display:inline-block; font-weight:800; font-family:"Cairo"; font-size:15px; padding:5px 12px; border-radius:999px; color:#fff; margin-bottom:14px}
+  .rule.corr .tag{background:var(--green)}
+  .rule.exp .tag{background:var(--orange)}
+  .rule h3{font-size:22px; font-weight:800; margin-bottom:10px}
+  .rule ul{margin:12px 0 0; padding-inline-start:20px}
+  .rule li{margin-bottom:8px}
+  .bignum{font-family:"Fraunces"; font-weight:800; font-size:34px; line-height:1}
+  .rule .flip{background:#fff; border-radius:12px; padding:12px 14px; margin-top:14px; font-size:15px; border:1px dashed var(--border)}
+
+  .countrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+  .countrow .chip{background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 14px; text-align:center; flex:1; min-width:90px}
+  .countrow .chip b{display:block; font-family:"Fraunces"; font-size:26px}
+  .countrow .chip span{font-size:13px; color:var(--ink-soft)}
+
+  /* Example blocks */
+  .ex{background:var(--canvas); border:1px solid var(--border); border-radius:var(--radius); padding:0; margin-bottom:16px; overflow:hidden}
+  .ex > .title{padding:18px 22px; font-family:"Cairo"; font-weight:700; font-size:18px; background:var(--soft); border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start}
+  .ex > .title .n{flex:none; width:30px; height:30px; border-radius:8px; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-family:"Fraunces"; font-weight:700; font-size:16px}
+  .ex .body{padding:20px 22px}
+  .meta{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px}
+  .pill{font-size:13.5px; font-weight:600; padding:6px 12px; border-radius:999px; border:1px solid var(--border); background:#fff}
+  .pill.method{background:var(--blue-soft); border-color:#c7e2f7; color:#1a5a99}
+  .pill.indep{background:var(--orange-soft); border-color:#f0d9c2; color:#9c5a1e}
+  .pill.dep{background:var(--green-soft); border-color:#cfe6da; color:#2c6b48}
+  .pill.none{background:var(--soft2); color:var(--ink-soft)}
+  .pill.count{background:var(--purple-soft); border-color:#dcc9f0; color:#5e3f94}
+  .vars{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px}
+  .var{background:var(--soft); border:1px solid var(--border); border-radius:10px; padding:6px 12px; font-size:14.5px}
+  .var b{color:var(--blue); font-family:"Fraunces"}
+  .hyp-label{font-family:"Cairo"; font-weight:700; font-size:15px; color:var(--ink-soft); margin:6px 0 10px}
+  ol.hyps{margin:0; padding-inline-start:22px}
+  ol.hyps li{margin-bottom:10px}
+  ol.hyps.plain{list-style:none; padding-inline-start:0}
+  ol.hyps.plain li{position:relative; padding-inline-start:30px}
+  ol.hyps.plain li::before{content:"•"; position:absolute; inset-inline-start:8px; color:var(--green); font-size:20px; top:-2px}
+
+  .note{background:var(--blue-soft); border:1px solid #c7e2f7; border-radius:12px; padding:14px 16px; font-size:15px; margin-top:6px}
+  .note b{color:#1a5a99}
+
+  /* Dibaga (intro) memorization */
+  .dibaga{background:linear-gradient(180deg,#ffffff, #fbfaf9); border:1px solid var(--border); border-radius:20px; padding:34px}
+  .dibaga .def{font-family:"Cairo"; font-weight:600; font-size:23px; line-height:1.6; text-align:center; max-width:760px; margin:0 auto 26px}
+  .dibaga .def .hl{color:var(--blue)}
+  .steps3{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:8px}
+  @media(max-width:760px){.steps3{grid-template-columns:1fr}}
+  .step{border-radius:16px; padding:22px; text-align:center; border:1px solid var(--border)}
+  .step.s1{background:var(--blue-soft)}
+  .step.s2{background:var(--green-soft)}
+  .step.s3{background:var(--orange-soft)}
+  .step .bn{font-family:"Fraunces"; font-weight:800; font-size:40px; line-height:1}
+  .step.s1 .bn{color:var(--blue)} .step.s2 .bn{color:var(--green)} .step.s3 .bn{color:var(--orange)}
+  .step h4{font-size:19px; font-weight:800; margin:8px 0}
+  .step p{font-size:15.5px; color:var(--ink); margin:0}
+  .mnem{margin-top:22px; text-align:center; font-family:"Cairo"; font-weight:700; font-size:18px}
+  .mnem span{background:var(--soft2); border-radius:10px; padding:4px 12px; margin:0 4px; display:inline-block}
+
+  table.link{width:100%; border-collapse:collapse; margin-top:18px; font-size:14.5px; background:#fff; border-radius:12px; overflow:hidden}
+  table.link th,table.link td{border:1px solid var(--border); padding:10px 12px; text-align:right; vertical-align:top}
+  table.link th{background:var(--soft2); font-family:"Cairo"; font-weight:700}
+  table.link td.p{font-weight:700; color:var(--blue); white-space:nowrap; width:170px}
+
+  figure.svg{margin:22px 0 6px; text-align:center}
+  figure.svg figcaption{color:var(--ink-soft); font-size:14px; margin-top:8px}
+  svg{max-width:100%; height:auto}
+
+  /* exam */
+  .exam{border:2px solid var(--purple); border-radius:18px; padding:0; overflow:hidden; margin-bottom:18px}
+  .exam .q{background:var(--purple-soft); padding:18px 22px; font-family:"Cairo"; font-weight:700; font-size:18px; border-bottom:1px solid #dcc9f0}
+  .exam .q .badge{display:inline-block; background:var(--purple); color:#fff; padding:3px 12px; border-radius:999px; font-size:14px; margin-inline-end:8px}
+  .exam .a{padding:20px 22px}
+  .qa{margin-bottom:16px}
+  .qa .qq{font-weight:700; font-family:"Cairo"; margin-bottom:8px}
+  .qa .qq::before{content:"س: "; color:var(--purple); font-weight:800}
+  .ans::before{content:"ج: "; color:var(--green); font-weight:800; font-family:"Cairo"}
+
+  /* quiz */
+  .quiz .qitem{background:var(--canvas); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:14px}
+  .quiz .qtext{font-family:"Cairo"; font-weight:700; font-size:16.5px; margin-bottom:14px}
+  .quiz .opts{display:grid; gap:10px}
+  .quiz button.opt{text-align:right; background:#fff; border:1px solid var(--border); border-radius:10px; padding:12px 16px; font-family:"Tajawal"; font-size:15.5px; cursor:pointer; min-height:44px; transition:border-color .15s, background .15s}
+  .quiz button.opt:hover{border-color:var(--blue)}
+  .quiz button.opt.correct{background:var(--green-soft); border-color:var(--green); color:#2c6b48; font-weight:700}
+  .quiz button.opt.wrong{background:var(--red-soft); border-color:var(--red); color:#a23b32}
+  .quiz .fb{margin-top:12px; font-size:14.5px; display:none}
+  .quiz .fb.show{display:block}
+
+  footer{text-align:center; color:var(--ink-soft); font-size:14px; margin-top:40px; padding-top:24px; border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">مقرر «قاعة بحث» · تطبيق عملي</div>
+    <h1>حل عناوين المناهج العلمية وصياغة الفروض</h1>
+    <p>ملف مذاكرة واحد يحل كل الأمثلة الموجودة في ملفات المقرر وأسئلة الامتحان، ويجمع القاعدة الذهبية لعدد الفروض، مع قسم خاص لحفظ الدباجة (المقدمة).</p>
+    <div class="by">المادة العلمية: د. إسلام رمضان إبراهيم · مدرس الصحة النفسية والإرشاد النفسي · جامعة عين شمس</div>
+  </div>
+
+  <nav class="toc">
+    <a href="#rule">القاعدة الذهبية</a>
+    <a href="#dibaga">الدباجة (المقدمة)</a>
+    <a href="#corr">وصفي ارتباطي</a>
+    <a href="#comp">وصفي مقارنة</a>
+    <a href="#pred">وصفي تنبؤي</a>
+    <a href="#exp">تجريبي</a>
+    <a href="#clin">إكلينيكي</a>
+    <a href="#mixed">أكثر من منهج</a>
+    <a href="#more">عناوين إضافية</a>
+    <a href="#exam">حل الامتحان</a>
+    <a href="#templates">قوالب الفروض</a>
+    <a href="#quiz">اختبر نفسك</a>
+  </nav>
+
+  <!-- ============ GOLDEN RULE ============ -->
+  <section id="rule">
+    <div class="sec-head"><span class="dot" style="background:var(--blue)"></span><h2>القاعدة الذهبية لعدد الفروض</h2></div>
+    <p class="sec-sub">احفظ الفكرتين دول وهتحل أي عنوان. الفرق كله بين نوع المنهج.</p>
+    <div class="rules">
+      <div class="rule corr">
+        <span class="tag">وصفي ارتباطي</span>
+        <h3>عدد الفروض = عدد أزواج المتغيرات</h3>
+        <ul>
+          <li>مافيش متغير مستقل ولا تابع، كل المتغيرات في مستوى واحد.</li>
+          <li>كل فرض بيربط بين متغيرين (زوج).</li>
+        </ul>
+        <div class="countrow">
+          <div class="chip"><b>1</b><span>متغيران → فرض واحد</span></div>
+          <div class="chip"><b>3</b><span>٣ متغيرات → ٣ فروض</span></div>
+          <div class="chip"><b>6</b><span>٤ متغيرات → ٦ فروض</span></div>
+        </div>
+      </div>
+      <div class="rule exp">
+        <span class="tag">تجريبي</span>
+        <h3>لكل متغير تابع ٣ فروض</h3>
+        <ul>
+          <li><b>فاعلية البرنامج / العلاج = المتغير المستقل.</b></li>
+          <li>اللي بعده كله متغيرات تابعة.</li>
+        </ul>
+        <div class="countrow">
+          <div class="chip"><b>3</b><span>متغير تابع واحد</span></div>
+          <div class="chip"><b>6</b><span>متغيرين تابعين</span></div>
+          <div class="chip"><b>9</b><span>٣ متغيرات تابعة</span></div>
+        </div>
+        <div class="flip">تنبيه: لو المتغير «خفض» (زي خفض القلق)، اتجاه الفرق يبقى لصالح المجموعة الضابطة وفي اتجاه القياس القبلي، لأن التجريبية المفروض تقل.</div>
+      </div>
+    </div>
+
+    <figure class="svg">
+      <svg viewBox="0 0 640 260" role="img" aria-label="رسم يوضح أن ٣ متغيرات تعطي ٣ روابط و٤ متغيرات تعطي ٦ روابط">
+        <!-- 3 vars triangle -->
+        <text x="150" y="28" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="18" fill="#2C2C2B">٣ متغيرات = ٣ فروض</text>
+        <line x1="150" y1="70" x2="90" y2="180" stroke="#46A171" stroke-width="3"/>
+        <line x1="150" y1="70" x2="210" y2="180" stroke="#46A171" stroke-width="3"/>
+        <line x1="90" y1="180" x2="210" y2="180" stroke="#46A171" stroke-width="3"/>
+        <circle cx="150" cy="70" r="22" fill="#E8F1EC" stroke="#46A171" stroke-width="2"/>
+        <circle cx="90" cy="180" r="22" fill="#E8F1EC" stroke="#46A171" stroke-width="2"/>
+        <circle cx="210" cy="180" r="22" fill="#E8F1EC" stroke="#46A171" stroke-width="2"/>
+        <text x="150" y="76" text-anchor="middle" font-family="Fraunces" font-size="18" fill="#2c6b48">١</text>
+        <text x="90" y="186" text-anchor="middle" font-family="Fraunces" font-size="18" fill="#2c6b48">٢</text>
+        <text x="210" y="186" text-anchor="middle" font-family="Fraunces" font-size="18" fill="#2c6b48">٣</text>
+        <!-- divider -->
+        <line x1="320" y1="50" x2="320" y2="210" stroke="#E6E5E3" stroke-width="2"/>
+        <!-- 4 vars quad -->
+        <text x="490" y="28" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="18" fill="#2C2C2B">٤ متغيرات = ٦ فروض</text>
+        <!-- edges: square + 2 diagonals -->
+        <line x1="430" y1="80" x2="550" y2="80" stroke="#D5803B" stroke-width="3"/>
+        <line x1="430" y1="200" x2="550" y2="200" stroke="#D5803B" stroke-width="3"/>
+        <line x1="430" y1="80" x2="430" y2="200" stroke="#D5803B" stroke-width="3"/>
+        <line x1="550" y1="80" x2="550" y2="200" stroke="#D5803B" stroke-width="3"/>
+        <line x1="430" y1="80" x2="550" y2="200" stroke="#D5803B" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <line x1="550" y1="80" x2="430" y2="200" stroke="#D5803B" stroke-width="2.5" stroke-dasharray="5 4"/>
+        <circle cx="430" cy="80" r="20" fill="#FBEBDE" stroke="#D5803B" stroke-width="2"/>
+        <circle cx="550" cy="80" r="20" fill="#FBEBDE" stroke="#D5803B" stroke-width="2"/>
+        <circle cx="430" cy="200" r="20" fill="#FBEBDE" stroke="#D5803B" stroke-width="2"/>
+        <circle cx="550" cy="200" r="20" fill="#FBEBDE" stroke="#D5803B" stroke-width="2"/>
+      </svg>
+      <figcaption>كل خط بين متغيرين = فرض ارتباطي واحد. المثلث ٣ خطوط، والمربع بقطريه ٦ خطوط.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ============ DIBAGA ============ -->
+  <section id="dibaga">
+    <div class="sec-head"><span class="dot" style="background:var(--orange)"></span><h2>الدباجة (المقدمة) — للحفظ</h2></div>
+    <p class="sec-sub">خط كبير وعناصر واضحة عشان تتحفظ بسهولة، مع رسم يوضح فكرة التدرّج.</p>
+    <div class="dibaga">
+      <p class="def">المقدمة عبارة عن مجموعة من الفقرات التي تصوغها كباحث بأسلوب أكاديمي مميز و<span class="hl">تسلسل منطقي للأفكار</span>، تتدرّج فيها من الحديث عن الموضوع <span class="hl">بشكل عام</span> ثم تنتقل إلى الحديث عنه <span class="hl">بشكل متخصص</span> لإظهار طبيعته وأهميته.</p>
+
+      <figure class="svg">
+        <svg viewBox="0 0 520 250" role="img" aria-label="قمع يوضح التدرج من العام إلى المتخصص إلى الإعلان عن الموضوع">
+          <polygon points="60,40 460,40 340,150 180,150" fill="#E5F2FC" stroke="#2783DE" stroke-width="2"/>
+          <rect x="210" y="150" width="100" height="60" fill="#FBEBDE" stroke="#D5803B" stroke-width="2"/>
+          <text x="260" y="70" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="18" fill="#1a5a99">عام</text>
+          <text x="260" y="128" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="16" fill="#2c6b48">متخصص</text>
+          <text x="260" y="187" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="15" fill="#9c5a1e">إعلان عن</text>
+          <text x="260" y="203" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="15" fill="#9c5a1e">الموضوع</text>
+        </svg>
+        <figcaption>ابدأ واسع، ضيّق تدريجيًا، ثم أعلن موضوع بحثك في النهاية.</figcaption>
+      </figure>
+
+      <h3 style="text-align:center; font-size:20px; margin:10px 0 16px">يجب أن تتضمن المقدمة هذه العناصر الثلاثة</h3>
+      <div class="steps3">
+        <div class="step s1">
+          <div class="bn">١</div>
+          <h4>العرض العام ثم المتخصص</h4>
+          <p>عرض موضوع الدراسة بشكل عام منتقلاً بالتدرّج بالحديث عن موضوع البحث بشكل متخصص.</p>
+        </div>
+        <div class="step s2">
+          <div class="bn">٢</div>
+          <h4>توضيح الصلة</h4>
+          <p>توضيح الصلة بين موضوع البحث (متغيرات الدراسة) والموضوع العام.</p>
+        </div>
+        <div class="step s3">
+          <div class="bn">٣</div>
+          <h4>الإعلان عن الموضوع</h4>
+          <p>إعلان عن موضوع البحث والتعريف به في نهاية المقدمة.</p>
+        </div>
+      </div>
+      <div class="mnem">مفتاح الحفظ: <span>عام ← خاص</span> <span>صِلة بالمتغيرات</span> <span>إعلان الموضوع</span></div>
+
+      <table class="link">
+        <tr><th colspan="2">كلمات الربط التي تساعدك على التسلسل المنطقي</th></tr>
+        <tr><td class="p">للإضافة</td><td>فعليه، بالإضافة إلى، كلاً من ... و، متساوي الأهمية، إضافة، أيضاً، بالإضافة إلى ذلك، ليس هذا فقط بل ... كذلك.</td></tr>
+        <tr><td class="p">لإظهار التضاد</td><td>بالرغم من، ولكن، على النقيض، بالعكس، في غضون ذلك، على الجانب الآخر، وإلا، في حين، لا يزال.</td></tr>
+        <tr><td class="p">لإظهار التشابه</td><td>بنفس الطريقة، بالمثل، أيضاً.</td></tr>
+        <tr><td class="p">لإظهار الاستثناءات</td><td>بالرغم، إنما، على الرغم من، لكن، مع ذلك.</td></tr>
+        <tr><td class="p">لإظهار النتيجة</td><td>لأن، وتبع ذلك، ونتيجة لذلك، بالتالي، ولهذا السبب، كنتيجة، إذن، بناءً عليه.</td></tr>
+        <tr><td class="p">للتتابع الزمني</td><td>لاحقاً، في النهاية، التالي، السابق، فوراً، في غضون ذلك، بعد ذلك، ثم، منذ، أحياناً.</td></tr>
+        <tr><td class="p">لإعطاء مثال</td><td>لتوضيح، على سبيل المثال، مثلاً، لشرح، على وجه الخصوص، في هذه الحالة، بخاصة، مثل.</td></tr>
+        <tr><td class="p">للتأكيد</td><td>في الواقع، بالتأكيد، إلى حد كبير، مؤكد، في الحقيقة، الأكثر أهمية، حتماً، بدون شك.</td></tr>
+        <tr><td class="p">للتلخيص</td><td>كما أوضحت، باختصار، استخلص، ختاماً، بالنتيجة، على العموم.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ CORRELATIONAL ============ -->
+  <section id="corr">
+    <div class="sec-head"><span class="dot" style="background:var(--green)"></span><h2>أولاً: المنهج الوصفي — وصفي ارتباطي</h2></div>
+    <p class="sec-sub">لا يوجد متغير مستقل أو تابع. عدد الفروض = عدد أزواج المتغيرات.</p>
+
+    <div class="ex">
+      <div class="title"><span class="n">١</span><span>الأمن النفسي وعلاقته بالسلوك العدواني لدى عينة من تلميذات المرحلة الابتدائية في مدينة جدة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">فرض واحد</span></div>
+        <div class="vars"><span class="var"><b>١</b> الأمن النفسي</span><span class="var"><b>٢</b> السلوك العدواني</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain"><li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الأمن النفسي ودرجاتهم على مقياس السلوك العدواني.</li></ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٢</span><span>التنظيم الانفعالي وعلاقته بأنماط التعلق بالشريك لدى المتزوجين حديثاً.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">فرض واحد</span></div>
+        <div class="vars"><span class="var"><b>١</b> التنظيم الانفعالي</span><span class="var"><b>٢</b> أنماط التعلق بالشريك</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain"><li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس التنظيم الانفعالي ودرجاتهم على مقياس أنماط التعلق بالشريك.</li></ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٣</span><span>التسامح وعلاقته بالوعي بالذات والأمن النفسي لدى طلبة الجامعة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">٣ فروض</span></div>
+        <div class="vars"><span class="var"><b>١</b> التسامح</span><span class="var"><b>٢</b> الوعي بالذات</span><span class="var"><b>٣</b> الأمن النفسي</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس التسامح ودرجاتهم على مقياس الوعي بالذات.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس التسامح ودرجاتهم على مقياس الأمن النفسي.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الوعي بالذات ودرجاتهم على مقياس الأمن النفسي.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٤</span><span>الصمود النفسي وعلاقته بأساليب مواجهة الضغوط لدى المرأة البحرينية المطلقة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">فرض واحد</span></div>
+        <div class="vars"><span class="var"><b>١</b> الصمود النفسي</span><span class="var"><b>٢</b> أساليب مواجهة الضغوط</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain"><li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الصمود النفسي ودرجاتهم على مقياس أساليب مواجهة الضغوط.</li></ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٥</span><span>المناعة النفسية وعلاقتها بنمو ما بعد الصدمة لدى المصابات بمرض السرطان.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">فرض واحد</span></div>
+        <div class="vars"><span class="var"><b>١</b> المناعة النفسية</span><span class="var"><b>٢</b> نمو ما بعد الصدمة</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain"><li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس المناعة النفسية ودرجاتهم على مقياس نمو ما بعد الصدمة.</li></ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٦</span><span>المناعة النفسية لدى طلاب الجامعة وعلاقتها بالذكاء الأخلاقي والأداء الأكاديمي.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">٣ فروض</span></div>
+        <div class="vars"><span class="var"><b>١</b> المناعة النفسية</span><span class="var"><b>٢</b> الذكاء الأخلاقي</span><span class="var"><b>٣</b> الأداء الأكاديمي</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس المناعة النفسية ودرجاتهم على مقياس الذكاء الأخلاقي.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس المناعة النفسية ودرجاتهم على مقياس الأداء الأكاديمي.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الذكاء الأخلاقي ودرجاتهم على مقياس الأداء الأكاديمي.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ COMPARATIVE ============ -->
+  <section id="comp">
+    <div class="sec-head"><span class="dot" style="background:var(--green)"></span><h2>المنهج الوصفي — وصفي مقارنة</h2></div>
+    <p class="sec-sub">علاقة ارتباطية + فروق بين مجموعات (النوع أو متغيرات أخرى).</p>
+
+    <div class="ex">
+      <div class="title"><span class="n">١</span><span>المناخ الأسري وعلاقته بالصلابة النفسية لدى المراهقين من الجنسين.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي مقارنة</span><span class="pill none">مقارنة بالنوع</span><span class="pill count">فرضان</span></div>
+        <div class="vars"><span class="var"><b>١</b> المناخ الأسري</span><span class="var"><b>٢</b> الصلابة النفسية</span><span class="var"><b>مقارنة</b> النوع (ذكور، إناث)</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس المناخ الأسري ودرجاتهم على مقياس الصلابة النفسية.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطات درجات أفراد العينة وفقاً للنوع (ذكور، إناث) على مقياس الصلابة النفسية.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٢</span><span>أنماط التعلق الوجداني وعلاقتها بالسعادة في ضوء بعض المتغيرات لدى عينة من المتزوجين السعوديين: دراسة وصفية مقارنة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي مقارنة</span><span class="pill none">مقارنة ببعض المتغيرات</span><span class="pill count">فرضان</span></div>
+        <div class="vars"><span class="var"><b>١</b> أنماط التعلق الوجداني</span><span class="var"><b>٢</b> السعادة</span><span class="var"><b>مقارنة</b> بعض المتغيرات</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس أنماط التعلق الوجداني ودرجاتهم على مقياس السعادة.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطات درجات أفراد العينة على مقياسي الدراسة وفقاً لبعض المتغيرات (النوع، مدة الزواج).</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PREDICTIVE ============ -->
+  <section id="pred">
+    <div class="sec-head"><span class="dot" style="background:var(--green)"></span><h2>المنهج الوصفي — وصفي تنبؤي</h2></div>
+    <p class="sec-sub">يوجد منبِّئ (متغير مستقل) ومتنبَّأ به. الصياغة: يمكن التنبؤ بـ … من خلال …</p>
+
+    <div class="ex">
+      <div class="title"><span class="n">١</span><span>إسهام النضج الانفعالي والأمن النفسي في التنبؤ بالصمود النفسي لدى طلبة الجامعة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي تنبؤي</span><span class="pill indep">منبِّئ: النضج الانفعالي، الأمن النفسي</span><span class="pill dep">متنبَّأ به: الصمود النفسي</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس الصمود النفسي من خلال درجاتهم على كل من مقياس النضج الانفعالي ومقياس الأمن النفسي (انحدار متعدد).</li>
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس الصمود النفسي من خلال درجاتهم على مقياس النضج الانفعالي (انحدار بسيط).</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٢</span><span>معنى الحياة والمرونة والتفاؤل كمنبئات بنمو ما بعد الصدمة لدى عينة من طلاب الجامعة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي تنبؤي</span><span class="pill indep">منبِّئ: معنى الحياة، المرونة، التفاؤل</span><span class="pill dep">متنبَّأ به: نمو ما بعد الصدمة</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس نمو ما بعد الصدمة من خلال درجاتهم على مقياس معنى الحياة والمرونة والتفاؤل (انحدار متعدد).</li>
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس نمو ما بعد الصدمة من خلال درجاتهم على مقياس معنى الحياة (انحدار بسيط).</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٣</span><span>الإسهام النسبي لكل من أساليب التعلم ومستوى الطموح في التوافق الدراسي لدى طالبات كلية البنات الإسلامية بأسيوط — جامعة الأزهر.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي تنبؤي</span><span class="pill indep">منبِّئ: أساليب التعلم، مستوى الطموح</span><span class="pill dep">متنبَّأ به: التوافق الدراسي</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس التوافق الدراسي من خلال درجاتهم على كل من مقياس أساليب التعلم ومقياس مستوى الطموح (انحدار متعدد).</li>
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس التوافق الدراسي من خلال درجاتهم على مقياس أساليب التعلم (انحدار بسيط).</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٤</span><span>التفاؤل كعامل مؤثر على الصمود النفسي لدى الأطفال في مجموعات عمرية متتابعة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي تنبؤي</span><span class="pill indep">منبِّئ: التفاؤل</span><span class="pill dep">متنبَّأ به: الصمود النفسي</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس الصمود النفسي من خلال درجاتهم على مقياس التفاؤل (انحدار بسيط).</li>
+        </ol>
+        <div class="note">متغير منبِّئ واحد، لذلك انحدار بسيط وفرض واحد. لو أضاف الباحث المجموعات العمرية كمقارنة يضيف فرض فروق.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXPERIMENTAL ============ -->
+  <section id="exp">
+    <div class="sec-head"><span class="dot" style="background:var(--orange)"></span><h2>ثانياً: المنهج التجريبي</h2></div>
+    <p class="sec-sub">فاعلية البرنامج = المتغير المستقل. لكل متغير تابع ٣ فروض (بعدي بين المجموعتين / قبلي‑بعدي / بعدي‑تتبعي).</p>
+
+    <figure class="svg">
+      <svg viewBox="0 0 620 210" role="img" aria-label="المتغير المستقل البرنامج يؤثر في المتغيرات التابعة وكل متغير له ثلاثة فروض">
+        <rect x="430" y="75" width="160" height="60" rx="12" fill="#FBEBDE" stroke="#D5803B" stroke-width="2"/>
+        <text x="510" y="100" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="15" fill="#9c5a1e">فاعلية البرنامج</text>
+        <text x="510" y="120" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="13" fill="#9c5a1e">(مستقل)</text>
+        <line x1="430" y1="105" x2="250" y2="105" stroke="#D5803B" stroke-width="3"/>
+        <polygon points="250,105 265,98 265,112" fill="#D5803B"/>
+        <rect x="70" y="75" width="175" height="60" rx="12" fill="#E8F1EC" stroke="#46A171" stroke-width="2"/>
+        <text x="157" y="100" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="15" fill="#2c6b48">المتغير التابع</text>
+        <text x="157" y="120" text-anchor="middle" font-family="Cairo" font-weight="700" font-size="13" fill="#2c6b48">= ٣ فروض</text>
+        <text x="330" y="90" text-anchor="middle" font-family="Tajawal" font-size="13" fill="#7D7A75">يؤثر في</text>
+      </svg>
+      <figcaption>عدد الفروض = عدد المتغيرات التابعة × ٣.</figcaption>
+    </figure>
+
+    <div class="ex">
+      <div class="title"><span class="n">١</span><span>فاعلية برنامج إرشادي في تنمية الدافعية للتعلم لدى تلاميذ السنة الخامسة ابتدائي.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تجريبي</span><span class="pill indep">مستقل: البرنامج الإرشادي</span><span class="pill dep">تابع: الدافعية للتعلم</span><span class="pill count">٣ فروض</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس الدافعية للتعلم في اتجاه المجموعة التجريبية.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس الدافعية للتعلم في اتجاه القياس البعدي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس الدافعية للتعلم.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٢</span><span>فاعلية برنامج إرشادي معرفي سلوكي لتنمية الصمود النفسي وخفض الأكسيثيميا لدى طالبات المرحلة الجامعية.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تجريبي</span><span class="pill indep">مستقل: البرنامج المعرفي السلوكي</span><span class="pill dep">تابع: الصمود النفسي + الأكسيثيميا</span><span class="pill count">٦ فروض</span></div>
+        <div class="hyp-label">أولاً: فروض الصمود النفسي (تنمية)</div>
+        <ol class="hyps">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس الصمود النفسي في اتجاه المجموعة التجريبية.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس الصمود النفسي في اتجاه القياس البعدي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس الصمود النفسي.</li>
+        </ol>
+        <div class="hyp-label">ثانياً: فروض الأكسيثيميا (خفض)</div>
+        <ol class="hyps" start="4">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس الأكسيثيميا في اتجاه المجموعة الضابطة.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس الأكسيثيميا في اتجاه القياس القبلي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس الأكسيثيميا.</li>
+        </ol>
+        <div class="note"><b>لاحظ:</b> «تنمية» يكون الاتجاه لصالح التجريبية والقياس البعدي، أما «خفض» فينعكس الاتجاه لصالح الضابطة والقياس القبلي.</div>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٣</span><span>فاعلية برنامج إرشادي في تنمية الذكاء الروحي لدى طلبة الجامعة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تجريبي</span><span class="pill indep">مستقل: البرنامج الإرشادي</span><span class="pill dep">تابع: الذكاء الروحي</span><span class="pill count">٣ فروض</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس الذكاء الروحي في اتجاه المجموعة التجريبية.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس الذكاء الروحي في اتجاه القياس البعدي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس الذكاء الروحي.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٤</span><span>فعالية برنامج إرشادي معرفي سلوكي في تنمية فاعلية الذات لدى الطالب المعلم.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تجريبي</span><span class="pill indep">مستقل: البرنامج المعرفي السلوكي</span><span class="pill dep">تابع: فاعلية الذات</span><span class="pill count">٣ فروض</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس فاعلية الذات في اتجاه المجموعة التجريبية.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس فاعلية الذات في اتجاه القياس البعدي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس فاعلية الذات.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٥</span><span>فاعلية برنامج إرشادي سلوكي جدلي في خفض السلوك الاندفاعي لدى طلاب الجامعة ذوي أعراض اضطراب الشخصية الحدية.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تجريبي</span><span class="pill indep">مستقل: البرنامج السلوكي الجدلي</span><span class="pill dep">تابع: السلوك الاندفاعي (خفض)</span><span class="pill count">٣ فروض</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس السلوك الاندفاعي في اتجاه المجموعة الضابطة.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس السلوك الاندفاعي في اتجاه القياس القبلي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس السلوك الاندفاعي.</li>
+        </ol>
+        <div class="note">المتغير «خفض السلوك الاندفاعي»، لذلك الاتجاه لصالح المجموعة الضابطة والقياس القبلي.</div>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٦</span><span>فاعلية برنامج إرشادي قائم على اليقظة الذهنية في تنمية فاعلية الذات الإبداعية لدى الطلاب ذوي الموهبة بالمرحلة المتوسطة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تجريبي</span><span class="pill indep">مستقل: برنامج اليقظة الذهنية</span><span class="pill dep">تابع: فاعلية الذات الإبداعية</span><span class="pill count">٣ فروض</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس فاعلية الذات الإبداعية في اتجاه المجموعة التجريبية.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس فاعلية الذات الإبداعية في اتجاه القياس البعدي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس فاعلية الذات الإبداعية.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CLINICAL ============ -->
+  <section id="clin">
+    <div class="sec-head"><span class="dot" style="background:var(--purple)"></span><h2>ثالثاً: المنهج الإكلينيكي</h2></div>
+    <p class="sec-sub">دراسة متعمقة للحالة. يعتمد على تساؤلات عن الديناميات النفسية الكامنة، وليس فروضاً إحصائية.</p>
+
+    <div class="ex">
+      <div class="title"><span class="n">١</span><span>الديناميات النفسية لمثلي الجنسية لدى عينة من الذكور: دراسة إكلينيكية متعمقة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">إكلينيكي</span><span class="pill none">تساؤلات لا فروض</span></div>
+        <div class="hyp-label">التساؤل الرئيسي</div>
+        <ol class="hyps plain"><li>ما هي الديناميات النفسية الكامنة وراء مثلية الجنسية لدى عينة من الذكور؟</li></ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٢</span><span>دراسة إكلينيكية متعمقة للوصمة النفسية لدى المتعافين من الاعتماد على المواد النفسية من طلاب الجامعة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">إكلينيكي</span><span class="pill none">تساؤلات لا فروض</span></div>
+        <div class="hyp-label">التساؤل الرئيسي</div>
+        <ol class="hyps plain"><li>ما هي الديناميات النفسية الكامنة وراء الوصمة النفسية لدى المتعافين من الاعتماد على المواد النفسية من طلاب الجامعة؟</li></ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٣</span><span>ديناميات اضطراب الشخصية الحدية لدى عينة من المراهقين: دراسة إكلينيكية متعمقة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">إكلينيكي</span><span class="pill none">تساؤلات لا فروض</span></div>
+        <div class="hyp-label">التساؤل الرئيسي</div>
+        <ol class="hyps plain"><li>ما هي الديناميات النفسية الكامنة وراء اضطراب الشخصية الحدية لدى عينة من المراهقين؟</li></ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٤</span><span>دراسة إكلينيكية لبعض حالات الأطفال مدمني الألعاب الإلكترونية في مرحلة الطفولة المتوسطة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">إكلينيكي</span><span class="pill none">تساؤلات لا فروض</span></div>
+        <div class="hyp-label">التساؤل الرئيسي</div>
+        <ol class="hyps plain"><li>ما هي الديناميات النفسية الكامنة وراء إدمان الألعاب الإلكترونية لدى الأطفال في مرحلة الطفولة المتوسطة؟</li></ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MIXED ============ -->
+  <section id="mixed">
+    <div class="sec-head"><span class="dot" style="background:var(--red)"></span><h2>دراسات تستخدم أكثر من منهجية</h2></div>
+    <p class="sec-sub">تجمع بين منهجين، فتجمع قواعد الفروض لكل منهج.</p>
+
+    <div class="ex">
+      <div class="title"><span class="n">١</span><span>الصلابة النفسية ومستوى الطموح كمنبئات بالأنشطة الإبداعية لدى طلاب المدارس الثانوية: دراسة سيكومترية – إكلينيكية.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تنبؤي (سيكومتري) + إكلينيكي</span><span class="pill indep">منبِّئ: الصلابة النفسية، مستوى الطموح</span><span class="pill dep">متنبَّأ به: الأنشطة الإبداعية</span></div>
+        <div class="hyp-label">الجزء السيكومتري (تنبؤي)</div>
+        <ol class="hyps plain">
+          <li>يمكن التنبؤ بدرجات أفراد العينة على مقياس الأنشطة الإبداعية من خلال درجاتهم على كل من مقياس الصلابة النفسية ومقياس مستوى الطموح (انحدار متعدد).</li>
+        </ol>
+        <div class="hyp-label">الجزء الإكلينيكي</div>
+        <ol class="hyps plain">
+          <li>ما هي الديناميات النفسية الكامنة وراء الأنشطة الإبداعية لدى حالات الدراسة (دراسة حالة متعمقة)؟</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٢</span><span>فاعلية برنامج تكاملي وقائي من الاضطراب الوجداني ثنائي القطب لدى عينة من طلاب الجامعة (دراسة إكلينيكية).</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">تجريبي + إكلينيكي</span><span class="pill indep">مستقل: البرنامج التكاملي الوقائي</span><span class="pill dep">تابع: الوقاية من الاضطراب الوجداني ثنائي القطب</span><span class="pill count">٣ فروض</span></div>
+        <div class="hyp-label">الجزء التجريبي</div>
+        <ol class="hyps">
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعتين التجريبية والضابطة في القياس البعدي على مقياس أعراض الاضطراب الوجداني ثنائي القطب في اتجاه المجموعة الضابطة.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين القبلي والبعدي على مقياس أعراض الاضطراب الوجداني ثنائي القطب في اتجاه القياس القبلي.</li>
+          <li>لا توجد فروق دالة إحصائياً بين متوسطي رتب درجات أفراد المجموعة التجريبية في القياسين البعدي والتتبعي على مقياس أعراض الاضطراب الوجداني ثنائي القطب.</li>
+        </ol>
+        <div class="note">دراسة وقائية (خفض الأعراض)، لذلك الاتجاه لصالح الضابطة والقياس القبلي. ويُدعم ذلك بدراسة حالة إكلينيكية متعمقة.</div>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٣</span><span>الصلابة النفسية وعلاقتها باتخاذ القرار لدى المرأة المصرية القيادية التربوية المعيلة وغير المعيلة: دراسة سيكومترية – إكلينيكية.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي/مقارن + إكلينيكي</span><span class="pill none">مقارنة: معيلة / غير معيلة</span></div>
+        <div class="vars"><span class="var"><b>١</b> الصلابة النفسية</span><span class="var"><b>٢</b> اتخاذ القرار</span></div>
+        <div class="hyp-label">الجزء الوصفي (ارتباطي + مقارن)</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الصلابة النفسية ودرجاتهم على مقياس اتخاذ القرار.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطات درجات أفراد العينة وفقاً للإعالة (معيلة، غير معيلة) على مقياسي الدراسة.</li>
+        </ol>
+        <div class="hyp-label">الجزء الإكلينيكي</div>
+        <ol class="hyps plain">
+          <li>ما هي الديناميات النفسية الكامنة وراء اتخاذ القرار لدى المرأة القيادية (دراسة حالة)؟</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MORE TITLES ============ -->
+  <section id="more">
+    <div class="sec-head"><span class="dot" style="background:var(--blue)"></span><h2>أمثلة لعناوين رسائل إضافية</h2></div>
+    <p class="sec-sub">عناوين وردت في عرض خطة البحث، محلولة بنفس القاعدة.</p>
+
+    <div class="ex">
+      <div class="title"><span class="n">١</span><span>المقاومة الإلكترونية وعلاقتها بالاندفاعية ومستوى الطموح لدى عينة من المراهقين.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">٣ فروض</span></div>
+        <div class="vars"><span class="var"><b>١</b> المقاومة الإلكترونية</span><span class="var"><b>٢</b> الاندفاعية</span><span class="var"><b>٣</b> مستوى الطموح</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس المقاومة الإلكترونية ودرجاتهم على مقياس الاندفاعية.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس المقاومة الإلكترونية ودرجاتهم على مقياس مستوى الطموح.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الاندفاعية ودرجاتهم على مقياس مستوى الطموح.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٢</span><span>الحاجات النفسية وعلاقتها بقلق المستقبل لدى المراهقين الأيتام المقيمين في المؤسسات الإيوائية وغير الإيوائية بمحافظة القاهرة.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي/مقارن</span><span class="pill none">مقارنة: إيوائي / غير إيوائي</span></div>
+        <div class="vars"><span class="var"><b>١</b> الحاجات النفسية</span><span class="var"><b>٢</b> قلق المستقبل</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الحاجات النفسية ودرجاتهم على مقياس قلق المستقبل.</li>
+          <li>توجد فروق دالة إحصائياً بين متوسطات درجات أفراد العينة وفقاً لنوع الإقامة (إيوائية، غير إيوائية) على مقياسي الدراسة.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٣</span><span>الاتجاه نحو المخاطرة وعلاقته بالثقة بالنفس وأساليب مواجهة الضغوط النفسية لدى عينة من الشباب الجامعي.</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">٣ فروض</span></div>
+        <div class="vars"><span class="var"><b>١</b> الاتجاه نحو المخاطرة</span><span class="var"><b>٢</b> الثقة بالنفس</span><span class="var"><b>٣</b> أساليب مواجهة الضغوط</span></div>
+        <div class="hyp-label">الفروض</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الاتجاه نحو المخاطرة ودرجاتهم على مقياس الثقة بالنفس.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الاتجاه نحو المخاطرة ودرجاتهم على مقياس أساليب مواجهة الضغوط.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الثقة بالنفس ودرجاتهم على مقياس أساليب مواجهة الضغوط.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="title"><span class="n">٤</span><span>خبرات الإساءة في مرحلة الطفولة وعلاقتها بالأمل وفاعلية الذات لدى عينة من المراهقين (دراسة سيكومترية إكلينيكية).</span></div>
+      <div class="body">
+        <div class="meta"><span class="pill method">وصفي ارتباطي + إكلينيكي</span><span class="pill none">لا مستقل ولا تابع</span><span class="pill count">٣ فروض + تساؤل إكلينيكي</span></div>
+        <div class="vars"><span class="var"><b>١</b> خبرات الإساءة</span><span class="var"><b>٢</b> الأمل</span><span class="var"><b>٣</b> فاعلية الذات</span></div>
+        <div class="hyp-label">الفروض (الجزء الارتباطي)</div>
+        <ol class="hyps plain">
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس خبرات الإساءة ودرجاتهم على مقياس الأمل.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس خبرات الإساءة ودرجاتهم على مقياس فاعلية الذات.</li>
+          <li>توجد علاقة ارتباطية دالة إحصائياً بين درجات أفراد العينة على مقياس الأمل ودرجاتهم على مقياس فاعلية الذات.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
